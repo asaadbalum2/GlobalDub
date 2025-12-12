@@ -1,0 +1,63 @@
+# Python
+__pycache__/
+*.py[cod]
+*$py.class
+*.so
+.Python
+build/
+develop-eggs/
+dist/
+downloads/
+eggs/
+.eggs/
+lib/
+lib64/
+parts/
+sdist/
+var/
+wheels/
+*.egg-info/
+.installed.cfg
+*.egg
+
+# Virtual environments
+venv/
+ENV/
+env/
+.venv/
+
+# IDE
+.idea/
+.vscode/
+*.swp
+*.swo
+*~
+
+# Output and temp files
+output/*.mp4
+output/*.avi
+output/*.mov
+output/*.mkv
+temp/
+*.tmp
+
+# Audio/Video temp files
+source_video.mp4
+source_audio.wav
+dubbed_audio.mp3
+adjusted_dub.mp3
+
+# Whisper model cache (can be large)
+# ~/.cache/whisper/ is the default location
+
+# OS files
+.DS_Store
+Thumbs.db
+
+# Environment variables
+.env
+.env.local
+
+# Keep directories
+!output/.gitkeep
+

@@ -1,0 +1,12 @@
+# GlobalDub - URL List for Batch Processing
+# Add one YouTube URL per line
+# Lines starting with # are comments
+
+# Example URLs (replace with actual videos):
+# https://youtube.com/shorts/abc123
+# https://youtube.com/shorts/def456
+
+# Instructions:
+# 1. Add your YouTube Short URLs below
+# 2. Run: python dub.py --batch urls.txt --lang es
+

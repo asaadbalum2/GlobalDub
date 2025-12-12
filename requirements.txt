@@ -1,0 +1,39 @@
+# GlobalDub - Automated Video Translation & Dubbing
+# Zero-Cost Stack for YouTube Shorts
+
+# Video downloading
+yt-dlp>=2024.1.0
+
+# Speech recognition (Whisper)
+# Note: Use 'base' model for CPU efficiency
+openai-whisper>=20231117
+
+# Translation (Google Translate scraper - free)
+deep-translator>=1.11.4
+
+# Text-to-Speech (Microsoft Edge TTS - FREE)
+edge-tts>=6.1.9
+
+# Video/Audio processing
+moviepy==1.0.3
+pydub>=0.25.1
+
+# Required by whisper
+torch>=2.0.0
+torchaudio>=2.0.0
+
+# Additional utilities
+aiofiles>=23.0.0
+
+# ===========================================
+# IMPORTANT: External Dependencies Required
+# ===========================================
+# FFmpeg (for audio/video processing)
+#   Windows: winget install ffmpeg
+#   Linux:   sudo apt install ffmpeg
+#   Mac:     brew install ffmpeg
+#
+# Note: On Linux servers (Oracle Cloud), run:
+#   sudo apt update
+#   sudo apt install ffmpeg python3-pip -y
+
