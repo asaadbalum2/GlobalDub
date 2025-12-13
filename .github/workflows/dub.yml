@@ -1,7 +1,6 @@
-name: Dub Video
+name: Dub & Upload Video
 
 on:
-  # Manual trigger with URL input
   workflow_dispatch:
     inputs:
       video_url:
@@ -13,11 +12,16 @@ on:
         required: false
         default: 'es'
         type: string
+      upload:
+        description: 'Upload to YouTube'
+        required: false
+        default: true
+        type: boolean
 
 jobs:
   dub:
     runs-on: ubuntu-latest
-    timeout-minutes: 30
+    timeout-minutes: 45
 
     steps:
       - name: Checkout code
@@ -38,27 +42,38 @@ jobs:
           python -m pip install --upgrade pip
           pip install -r requirements.txt
 
-      - name: Dub video
+      - name: Dub and Upload video
         run: |
-          python dub.py "${{ github.event.inputs.video_url }}" \
-            --lang "${{ github.event.inputs.target_language }}"
+          if [ "${{ github.event.inputs.upload }}" = "true" ]; then
+            python dub.py "${{ github.event.inputs.video_url }}" \
+              --lang "${{ github.event.inputs.target_language }}" \
+              --upload
+          else
+            python dub.py "${{ github.event.inputs.video_url }}" \
+              --lang "${{ github.event.inputs.target_language }}"
+          fi
         env:
+          AUTO_UPLOAD: "true"
+          YOUTUBE_CLIENT_ID: ${{ secrets.YOUTUBE_CLIENT_ID }}
+          YOUTUBE_CLIENT_SECRET: ${{ secrets.YOUTUBE_CLIENT_SECRET }}
+          YOUTUBE_REFRESH_TOKEN: ${{ secrets.YOUTUBE_REFRESH_TOKEN }}
           PYTHONUNBUFFERED: "1"
 
-      - name: Upload dubbed video
+      - name: Upload artifact (backup)
         uses: actions/upload-artifact@v4
+        if: always()
         with:
           name: dubbed-video-${{ github.event.inputs.target_language }}-${{ github.run_number }}
           path: output/*.mp4
-          retention-days: 30
-          if-no-files-found: error
+          retention-days: 7
+          if-no-files-found: warn
 
       - name: Summary
         run: |
-          echo "## 🌍 Dubbed Video" >> $GITHUB_STEP_SUMMARY
+          echo "## 🌍 GlobalDub Complete" >> $GITHUB_STEP_SUMMARY
           echo "" >> $GITHUB_STEP_SUMMARY
           echo "**Source:** ${{ github.event.inputs.video_url }}" >> $GITHUB_STEP_SUMMARY
           echo "**Language:** ${{ github.event.inputs.target_language }}" >> $GITHUB_STEP_SUMMARY
-          echo "" >> $GITHUB_STEP_SUMMARY
-          echo "Download from the Artifacts section above!" >> $GITHUB_STEP_SUMMARY
-
+          if [ "${{ github.event.inputs.upload }}" = "true" ]; then
+            echo "✅ Uploaded to YouTube!" >> $GITHUB_STEP_SUMMARY
+          fi

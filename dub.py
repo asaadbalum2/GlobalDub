@@ -473,6 +473,7 @@ Available Languages:
     parser.add_argument("--batch", "-b", metavar="FILE", help="Process URLs from file")
     parser.add_argument("--output", "-o", help="Output filename")
     parser.add_argument("--keep-temp", action="store_true", help="Keep temporary files")
+    parser.add_argument("--upload", "-u", action="store_true", help="Upload to YouTube after dubbing")
     parser.add_argument("--list-langs", action="store_true", help="List available languages")
     parser.add_argument("--check", action="store_true", help="Check dependencies only")
     
@@ -491,12 +492,37 @@ Available Languages:
     # Check dependencies
     check_dependencies()
     
+    # Determine if we should upload
+    should_upload = args.upload or (os.environ.get('AUTO_UPLOAD', '').lower() == 'true')
+    
     if args.batch:
-        asyncio.run(batch_process(args.batch, args.lang))
+        results = asyncio.run(batch_process(args.batch, args.lang))
+        if should_upload:
+            for r in results:
+                if r.get('status') == 'success' and r.get('output'):
+                    upload_to_youtube(r['output'], r['url'], args.lang)
     elif args.url:
-        asyncio.run(process_video(args.url, args.lang, args.output, args.keep_temp))
+        output_path = asyncio.run(process_video(args.url, args.lang, args.output, args.keep_temp))
+        if should_upload and output_path:
+            upload_to_youtube(output_path, args.url, args.lang)
     else:
         parser.print_help()
+
+
+def upload_to_youtube(video_path: str, original_url: str, lang: str):
+    """Upload dubbed video to YouTube."""
+    try:
+        from youtube_uploader import upload_dubbed_video
+        print("\n📤 Uploading to YouTube...")
+        result = upload_dubbed_video(video_path, original_url, lang)
+        print(f"🎉 Video live at: {result['url']}")
+        return result
+    except ImportError:
+        print("⚠️ YouTube uploader not available. Skipping upload.")
+        return None
+    except Exception as e:
+        print(f"❌ Upload failed: {e}")
+        return None
 
 
 if __name__ == "__main__":
