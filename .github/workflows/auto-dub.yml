@@ -1,0 +1,65 @@
+name: GlobalDub - Auto Fetch & Dub Trending
+
+on:
+  # Scheduled runs - 4 times per day (limited by YouTube quota)
+  schedule:
+    - cron: '0 5 * * *'   # 5 AM UTC
+    - cron: '0 11 * * *'  # 11 AM UTC
+    - cron: '0 17 * * *'  # 5 PM UTC
+    - cron: '0 23 * * *'  # 11 PM UTC
+
+jobs:
+  auto-dub:
+    runs-on: ubuntu-latest
+    timeout-minutes: 60
+
+    steps:
+      - name: Checkout code
+        uses: actions/checkout@v4
+
+      - name: Set up Python
+        uses: actions/setup-python@v5
+        with:
+          python-version: '3.11'
+
+      - name: Install dependencies
+        run: |
+          sudo apt-get update
+          sudo apt-get install -y ffmpeg
+          pip install -r requirements.txt
+
+      - name: Fetch trending shorts
+        run: |
+          python trending_fetcher.py 2
+
+      - name: Dub trending shorts
+        run: |
+          # Dub each URL to Spanish (most popular)
+          if [ -f urls_to_dub.txt ]; then
+            while IFS= read -r url || [ -n "$url" ]; do
+              # Skip comments and empty lines
+              [[ "$url" =~ ^#.*$ ]] && continue
+              [[ -z "$url" ]] && continue
+              
+              echo "Dubbing: $url"
+              python dub.py "$url" --lang es --upload || echo "Failed: $url"
+              
+              # Wait between dubs to avoid rate limits
+              sleep 30
+            done < urls_to_dub.txt
+          fi
+        env:
+          AUTO_UPLOAD: "true"
+          YOUTUBE_CLIENT_ID: ${{ secrets.YOUTUBE_CLIENT_ID }}
+          YOUTUBE_CLIENT_SECRET: ${{ secrets.YOUTUBE_CLIENT_SECRET }}
+          YOUTUBE_REFRESH_TOKEN: ${{ secrets.YOUTUBE_REFRESH_TOKEN }}
+          PYTHONUNBUFFERED: "1"
+
+      - name: Summary
+        run: |
+          echo "## 🌍 GlobalDub Auto-Run Complete" >> $GITHUB_STEP_SUMMARY
+          echo "" >> $GITHUB_STEP_SUMMARY
+          echo "**Time:** $(date -u)" >> $GITHUB_STEP_SUMMARY
+          echo "**Mode:** Auto-fetch trending" >> $GITHUB_STEP_SUMMARY
+          echo "**Target Language:** Spanish" >> $GITHUB_STEP_SUMMARY
+
