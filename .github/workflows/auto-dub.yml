@@ -11,9 +11,16 @@ on:
 jobs:
   auto-dub:
     runs-on: ubuntu-latest
-    timeout-minutes: 60
+    timeout-minutes: 90
 
     steps:
+      - name: Random delay for stealth (0-45 min)
+        run: |
+          DELAY=$((RANDOM % 2700))
+          echo "⏱️ Waiting $DELAY seconds ($(($DELAY / 60)) minutes) for randomization..."
+          sleep $DELAY
+          echo "✅ Starting execution at $(date -u)"
+
       - name: Checkout code
         uses: actions/checkout@v4
 
@@ -62,4 +69,5 @@ jobs:
           echo "**Time:** $(date -u)" >> $GITHUB_STEP_SUMMARY
           echo "**Mode:** Auto-fetch trending" >> $GITHUB_STEP_SUMMARY
           echo "**Target Language:** Spanish" >> $GITHUB_STEP_SUMMARY
+
 
