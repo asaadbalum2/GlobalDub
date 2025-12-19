@@ -1,12 +1,13 @@
 name: GlobalDub - Auto Fetch & Dub Trending
 
 on:
-  # Scheduled runs - 4 times per day (limited by YouTube quota)
-  schedule:
-    - cron: '0 5 * * *'   # 5 AM UTC
-    - cron: '0 11 * * *'  # 11 AM UTC
-    - cron: '0 17 * * *'  # 5 PM UTC
-    - cron: '0 23 * * *'  # 11 PM UTC
+  workflow_dispatch:
+  # DISABLED during development - uncomment when product is ready
+  # schedule:
+  #   - cron: '0 5 * * *'   # 5 AM UTC
+  #   - cron: '0 11 * * *'  # 11 AM UTC
+  #   - cron: '0 17 * * *'  # 5 PM UTC
+  #   - cron: '0 23 * * *'  # 11 PM UTC
 
 jobs:
   auto-dub:
