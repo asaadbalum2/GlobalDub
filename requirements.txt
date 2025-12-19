@@ -18,6 +18,9 @@ edge-tts>=7.0.0
 moviepy==1.0.3
 pydub>=0.25.1
 
+# Image processing (Pin to <10.0.0 for moviepy compatibility)
+Pillow>=9.0.0,<10.0.0
+
 # Required by whisper
 torch>=2.0.0
 torchaudio>=2.0.0
